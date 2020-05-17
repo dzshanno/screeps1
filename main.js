@@ -1,7 +1,8 @@
-const numberofbuilders = 1;
-const numberofharvesters = 6;
-const numberofupgraders = 1;
-const numberofrestorers = 1;
+const numberofbuilders =6;
+const numberofharvesters = 3;
+const numberofupgraders = 0;
+const numberofrestorers =0;
+
 
 
 
@@ -9,11 +10,12 @@ var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var CreateHarvester = require('create.harvester');
+var CreateBuilder = require('create.builder');
 var roleRestorer = require('role.restorer');
 
 module.exports.loop = function () {
 
-
+    console.log(Game.spawns['Spawn1'].room.controller.level);
 
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
@@ -22,41 +24,44 @@ module.exports.loop = function () {
         }
     }
 
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    console.log('Harvesters: ' + harvesters.length);
+    
 
-    if(harvesters.length < numberofharvesters) {
-        CreateHarvester.run();
+   
+
+    
+
+    var restorers = _.filter(Game.creeps, (creep) => creep.memory.role == 'restoring');
+    console.log('restorers: ' + restorers.length);
+
+    if(restorers.length < numberofrestorers) {
+        var newName = 'restorer' + Game.time;
+        console.log('Spawning new restorer: ' + newName);
+        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE, MOVE], newName, 
+            {memory: {role: 'restoring'}});
     }
 
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+    var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'building');
+    console.log('builders: ' + builders.length);
+
+    if(builders.length < numberofbuilders) {
+       CreateBuilder.run();
+    }
+
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrading');
     console.log('upgraders: ' + upgraders.length);
 
     if(upgraders.length < numberofupgraders) {
         var newName = 'upgrader' + Game.time;
         console.log('Spawning new upgrader: ' + newName);
         Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE, MOVE], newName, 
-            {memory: {role: 'upgrader'}});
+            {memory: {role: 'upgrading'}});
     }
 
-    var restorers = _.filter(Game.creeps, (creep) => creep.memory.role == 'restorer');
-    console.log('restorers: ' + restorers.length);
+    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvesting');
+    console.log('Harvesters: ' + harvesters.length);
 
-    if(upgraders.length < numberofrestorers) {
-        var newName = 'restorer' + Game.time;
-        console.log('Spawning new restorer: ' + newName);
-        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE, MOVE], newName, 
-            {memory: {role: 'restorer'}});
-    }
-
-    var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    console.log('builders: ' + builders.length);
-
-    if(builders.length < numberofbuilders) {
-        var newName = 'builder' + Game.time;
-        console.log('Spawning new builder: ' + newName);
-        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE, MOVE], newName, 
-            {memory: {role: 'builder'}});
+    if(harvesters.length < numberofharvesters) {
+        CreateHarvester.run();
     }
     
     if(Game.spawns['Spawn1'].spawning) { 
@@ -68,18 +73,20 @@ module.exports.loop = function () {
             {align: 'left', opacity: 0.8});
     }
 
+
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
+        if(creep.memory.role == 'harvesting') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role == 'upgrader') {
+        if(creep.memory.role == 'upgrading') {
             roleUpgrader.run(creep);
+            
         }
-        if(creep.memory.role == 'builder') {
+        if(creep.memory.role == 'building') {
             roleBuilder.run(creep);
         }
-        if(creep.memory.role == 'restorer') {
+        if(creep.memory.role == 'restoring') {
             roleRestorer.run(creep);
         }
     }

@@ -6,8 +6,6 @@ var roleRestorer = {
         const targets = creep.room.find(FIND_STRUCTURES, {
             filter: object => object.hits < object.hitsMax
         });
-
-        console.log('number of restore targets ' + targets.length);
         
         targets.sort((a,b) => a.hits - b.hits);
 
@@ -27,6 +25,20 @@ var roleRestorer = {
                 
                 if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0],{visualizePathStyle: {stroke: '#ffffff'}});
+                }
+            }
+
+            else {
+                var targets2 = creep.room.find(FIND_STRUCTURES, {
+                        filter: (structure) => {
+                            return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+                                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                        }
+                });
+                if(targets2.length > 0) {
+                    if(creep.transfer(targets2[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targets2[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
                 }
             }
         }
